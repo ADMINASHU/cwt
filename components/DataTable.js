@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
 import styles from "./DataTable.module.css";
@@ -12,6 +12,7 @@ export default function DataTable() {
   const [modalMode, setModalMode] = useState("edit"); // "edit" or "add"
   const [formValues, setFormValues] = useState({});
   const [editRowIndex, setEditRowIndex] = useState(null);
+  const [fontSize, setFontSize] = useState(16);
 
   useEffect(() => {
     fetch("/api/sheet")
@@ -40,9 +41,7 @@ export default function DataTable() {
   };
 
   const filteredRows = rows
-    .filter((row) =>
-      row.some((cell) => cell.toLowerCase().includes(query.toLowerCase()))
-    )
+    .filter((row) => row.some((cell) => cell.toLowerCase().includes(query.toLowerCase())))
     .filter((row) =>
       Object.entries(filters).every(([key, value]) => {
         const index = headerMap[key.toLowerCase()];
@@ -57,7 +56,7 @@ export default function DataTable() {
     "Rating",
     "SYS Warr",
     "Battery Warr",
-    "AMC"
+    "AMC",
   ];
 
   // Modal logic
@@ -94,10 +93,10 @@ export default function DataTable() {
     if (modalMode === "edit") {
       // Update row in local data
       const updatedRows = [...rows];
-      const filteredIdx = rows.findIndex(
-        row => row.every((cell, i) => cell === filteredRows[editRowIndex][i])
+      const filteredIdx = rows.findIndex((row) =>
+        row.every((cell, i) => cell === filteredRows[editRowIndex][i])
       );
-      const newRow = headers.map(h => formValues[h]);
+      const newRow = headers.map((h) => formValues[h]);
       updatedRows[filteredIdx] = newRow;
       setData([headers, ...updatedRows]);
 
@@ -113,7 +112,7 @@ export default function DataTable() {
       }
     } else {
       // Add new row locally
-      const newRow = headers.map(h => formValues[h]);
+      const newRow = headers.map((h) => formValues[h]);
       setData([headers, ...rows, newRow]);
 
       // Send new row to API
@@ -135,10 +134,27 @@ export default function DataTable() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={{ fontSize: `${fontSize}px` }}>
       <div className={styles.bar}>
         <h2 className={styles.title}>📋 Customer's Records</h2>
-        <div  className={styles.inputGroup}>
+        <div className={styles.inputGroup}>
+          {/* Font size controller */}
+          <button
+            type="button"
+            className={styles.fontSizeBtn}
+            aria-label="Decrease font size"
+            onClick={() => setFontSize((f) => Math.max(12, f - 1))}
+          >
+            A-
+          </button>
+          <button
+            type="button"
+            className={styles.fontSizeBtn}
+            aria-label="Increase font size"
+            onClick={() => setFontSize((f) => Math.min(24, f + 1))}
+          >
+            A+
+          </button>
           <input
             type="text"
             placeholder="🔍 Search across all columns"
@@ -146,11 +162,7 @@ export default function DataTable() {
             onChange={(e) => setQuery(e.target.value)}
             className={styles.search}
           />
-          <button
-            type="button"
-            className={styles.addButton}
-            onClick={openAddModal}
-          >
+          <button type="button" className={styles.addButton} onClick={openAddModal}>
             + Add
           </button>
         </div>

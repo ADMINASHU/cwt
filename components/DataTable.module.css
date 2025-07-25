@@ -239,3 +239,18 @@
 .cancelButton:hover {
   background: #d1d5db;
 }
+.fontSizeBtn {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--dt-border);
+  background: var(--dt-bg);
+  color: var(--dt-text);
+  font-size: 1em;
+  cursor: pointer;
+  margin-right: 4px;
+  transition: background 0.2s, border 0.2s;
+}
+.fontSizeBtn:hover {
+  background: var(--dt-header-bg);
+  border-color: var(--dt-accent);
+}
