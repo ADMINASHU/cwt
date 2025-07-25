@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from "react";
 import styles from "./DataTable.module.css";
+import RecordForm from "./RecordForm";
 
 export default function DataTable() {
   const [data, setData] = useState([]);
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState({});
-  const [editedRows, setEditedRows] = useState({});
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("edit"); // "edit" or "add"
+  const [formValues, setFormValues] = useState({});
+  const [editRowIndex, setEditRowIndex] = useState(null);
 
   useEffect(() => {
     fetch("/api/sheet")
@@ -35,20 +39,6 @@ export default function DataTable() {
     setFilters((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleCellEdit = (rowIndex, cellIndex, value) => {
-    setEditedRows((prev) => ({
-      ...prev,
-      [rowIndex]: {
-        ...prev[rowIndex],
-        [cellIndex]: value
-      }
-    }));
-  };
-
-  const getCellValue = (rowIndex, cellIndex) => {
-    return editedRows[rowIndex]?.[cellIndex] ?? filteredRows[rowIndex][cellIndex];
-  };
-
   const filteredRows = rows
     .filter((row) =>
       row.some((cell) => cell.toLowerCase().includes(query.toLowerCase()))
@@ -63,7 +53,6 @@ export default function DataTable() {
   const filterFields = [
     "State",
     "Organization",
-    "Customer Name",
     "Product",
     "Rating",
     "SYS Warr",
@@ -71,18 +60,100 @@ export default function DataTable() {
     "AMC"
   ];
 
+  // Modal logic
+  const openEditModal = (rowIndex) => {
+    setModalMode("edit");
+    setEditRowIndex(rowIndex);
+    setFormValues(
+      headers.reduce((obj, head, i) => {
+        obj[head] = filteredRows[rowIndex][i];
+        return obj;
+      }, {})
+    );
+    setModalOpen(true);
+  };
+
+  const openAddModal = () => {
+    setModalMode("add");
+    setEditRowIndex(null);
+    setFormValues(
+      headers.reduce((obj, head) => {
+        obj[head] = "";
+        return obj;
+      }, {})
+    );
+    setModalOpen(true);
+  };
+
+  const handleFormChange = (field, value) => {
+    setFormValues((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    if (modalMode === "edit") {
+      // Update row in local data
+      const updatedRows = [...rows];
+      const filteredIdx = rows.findIndex(
+        row => row.every((cell, i) => cell === filteredRows[editRowIndex][i])
+      );
+      const newRow = headers.map(h => formValues[h]);
+      updatedRows[filteredIdx] = newRow;
+      setData([headers, ...updatedRows]);
+
+      // Send only the updated row to API using PUT
+      try {
+        await fetch("/api/sheet", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rowIndex: filteredIdx, rowData: newRow }),
+        });
+      } catch (err) {
+        console.error("Error saving changes:", err);
+      }
+    } else {
+      // Add new row locally
+      const newRow = headers.map(h => formValues[h]);
+      setData([headers, ...rows, newRow]);
+
+      // Send new row to API
+      try {
+        await fetch("/api/sheet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ updates: [newRow] }),
+        });
+      } catch (err) {
+        console.error("Error adding row:", err);
+      }
+    }
+    setModalOpen(false);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h2 className={styles.title}>📋 Customer's Records</h2>
-
-        <input
-          type="text"
-          placeholder="🔍 Search across all columns"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className={styles.search}
-        />
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <input
+            type="text"
+            placeholder="🔍 Search across all columns"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className={styles.search}
+          />
+          <button
+            type="button"
+            className={styles.addButton}
+            onClick={openAddModal}
+          >
+            + Add
+          </button>
+        </div>
       </div>
 
       <div className={styles.filters}>
@@ -114,23 +185,33 @@ export default function DataTable() {
           </thead>
           <tbody>
             {filteredRows.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {row.map((_, cellIndex) => (
-                  <td key={cellIndex}>
-                    <input
-                      value={getCellValue(rowIndex, cellIndex)}
-                      onChange={(e) =>
-                        handleCellEdit(rowIndex, cellIndex, e.target.value)
-                      }
-                      className={styles.inputCell}
-                    />
-                  </td>
+              <tr
+                key={rowIndex}
+                className={styles.clickableRow}
+                onClick={() => openEditModal(rowIndex)}
+                style={{ cursor: "pointer" }}
+              >
+                {row.map((cell, cellIndex) => (
+                  <td key={cellIndex}>{cell}</td>
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Modal Form */}
+      {modalOpen && (
+        <RecordForm
+          open={modalOpen}
+          mode={modalMode}
+          headers={headers}
+          values={formValues}
+          onChange={handleFormChange}
+          onSubmit={handleFormSubmit}
+          onClose={handleModalClose}
+        />
+      )}
     </div>
   );
 }

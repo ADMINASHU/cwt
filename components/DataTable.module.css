@@ -99,3 +99,132 @@
   width: 100%;
   overflow-x: auto;
 }
+.addButton {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.addButton:hover {
+  background: #1d4ed8;
+}
+.clickableRow:hover td {
+  background: var(--dt-row-hover);
+}
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal {
+  background: var(--dt-bg);
+  color: var(--dt-text);
+  border-radius: 10px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.12);
+  padding: 32px 24px 24px 24px;
+  min-width: 320px;
+  max-width: 900px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-height: 90vh; /* limit modal height */
+  /* overflow: hidden; */
+}
+.form {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px 24px;
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+.form::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+@media (max-width: 700px) {
+  .modal {
+    max-width: 98vw;
+    padding: 18px 8px 12px 8px;
+    max-height: 98vh;
+  }
+  .form {
+    grid-template-columns: 1fr;
+    max-height: 70vh;
+  }
+}
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.formLabel {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 2px;
+  color: var(--dt-text);
+}
+.formInput {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--dt-border);
+  background: var(--dt-bg);
+  color: var(--dt-text);
+  font-size: 0.95rem;
+  transition: border 0.2s;
+}
+.formInput:focus {
+  border-color: var(--dt-accent);
+  outline: none;
+}
+.formActions {
+  position: sticky;
+  bottom: 0;
+  background: var(--dt-bg);
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+  justify-content: flex-end;
+  padding-top: 12px;
+  z-index: 2;
+  border-top: 1px solid var(--dt-border);
+}
+.saveButton {
+  padding: 10px 22px;
+  border-radius: 6px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.saveButton:hover {
+  background: #1d4ed8;
+}
+.cancelButton {
+  padding: 10px 22px;
+  border-radius: 6px;
+  border: none;
+  background: #e5e7eb;
+  color: #222;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.cancelButton:hover {
+  background: #d1d5db;
+}
