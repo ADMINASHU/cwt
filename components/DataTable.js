@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
 import styles from "./DataTable.module.css";
@@ -7,6 +7,7 @@ export default function DataTable() {
   const [data, setData] = useState([]);
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState({});
+  const [editedRows, setEditedRows] = useState({});
 
   useEffect(() => {
     fetch("/api/sheet")
@@ -20,13 +21,11 @@ export default function DataTable() {
   const headers = data[0];
   const rows = data.slice(1);
 
-  // Map header names to their indices
   const headerMap = headers.reduce((map, name, i) => {
     map[name.toLowerCase()] = i;
     return map;
   }, {});
 
-  // Get unique values for each field
   const getUniqueOptions = (field) => {
     const index = headerMap[field.toLowerCase()];
     return [...new Set(rows.map((row) => row[index]))].sort();
@@ -36,8 +35,24 @@ export default function DataTable() {
     setFilters((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleCellEdit = (rowIndex, cellIndex, value) => {
+    setEditedRows((prev) => ({
+      ...prev,
+      [rowIndex]: {
+        ...prev[rowIndex],
+        [cellIndex]: value
+      }
+    }));
+  };
+
+  const getCellValue = (rowIndex, cellIndex) => {
+    return editedRows[rowIndex]?.[cellIndex] ?? filteredRows[rowIndex][cellIndex];
+  };
+
   const filteredRows = rows
-    .filter((row) => row.some((cell) => cell.toLowerCase().includes(query.toLowerCase())))
+    .filter((row) =>
+      row.some((cell) => cell.toLowerCase().includes(query.toLowerCase()))
+    )
     .filter((row) =>
       Object.entries(filters).every(([key, value]) => {
         const index = headerMap[key.toLowerCase()];
@@ -53,7 +68,7 @@ export default function DataTable() {
     "Rating",
     "SYS Warr",
     "Battery Warr",
-    "AMC",
+    "AMC"
   ];
 
   return (
@@ -61,7 +76,6 @@ export default function DataTable() {
       <div className={styles.header}>
         <h2 className={styles.title}>📋 Customer's Records</h2>
 
-        {/* Global Search */}
         <input
           type="text"
           placeholder="🔍 Search across all columns"
@@ -71,7 +85,6 @@ export default function DataTable() {
         />
       </div>
 
-      {/* Dropdown Filters */}
       <div className={styles.filters}>
         {filterFields.map((field) => (
           <select
@@ -90,7 +103,6 @@ export default function DataTable() {
         ))}
       </div>
 
-      {/* Table */}
       <div className={styles.responsiveTableWrapper}>
         <table className={styles.table}>
           <thead>
@@ -103,8 +115,16 @@ export default function DataTable() {
           <tbody>
             {filteredRows.map((row, rowIndex) => (
               <tr key={rowIndex}>
-                {row.map((cell, cellIndex) => (
-                  <td key={cellIndex}>{cell}</td>
+                {row.map((_, cellIndex) => (
+                  <td key={cellIndex}>
+                    <input
+                      value={getCellValue(rowIndex, cellIndex)}
+                      onChange={(e) =>
+                        handleCellEdit(rowIndex, cellIndex, e.target.value)
+                      }
+                      className={styles.inputCell}
+                    />
+                  </td>
                 ))}
               </tr>
             ))}

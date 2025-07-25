@@ -69,6 +69,7 @@
   border-color: var(--dt-accent);
   outline: none;
 }
+
 .table {
   width: 100%;
   min-width: 900px;
@@ -85,6 +86,8 @@
   background: var(--dt-header-bg);
   font-weight: 600;
   color: var(--dt-text);
+  padding: 8px 8px; /* smaller padding for compact header */
+  font-size: 0.95rem; /* slightly smaller font size */
 }
 .table tr:hover td {
   background: var(--dt-row-hover);
