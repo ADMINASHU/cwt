@@ -22,13 +22,19 @@
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.07);
   padding: 24px;
-  margin-top: 24px;
+  /* margin-top: 24px; */
 }
-.header {
+.bar {
   display: flex;
   justify-content: space-between;
-
   margin-bottom: 24px;
+  align-items: center;
+}
+.inputGroup{
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  
 }
 .title {
   font-size: 1.5rem;
@@ -36,7 +42,6 @@
   margin-bottom: 18px;
 }
 .search {
-  margin-bottom: 14px;
   padding: 10px 14px;
   border-radius: 8px;
   border: 1px solid var(--dt-border);
@@ -98,6 +103,12 @@
 .responsiveTableWrapper {
   width: 100%;
   overflow-x: auto;
+  /* Hide horizontal scrollbar */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+.responsiveTableWrapper::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 .addButton {
   padding: 8px 16px;

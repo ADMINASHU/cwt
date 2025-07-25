@@ -136,9 +136,9 @@ export default function DataTable() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
+      <div className={styles.bar}>
         <h2 className={styles.title}>📋 Customer's Records</h2>
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+        <div  className={styles.inputGroup}>
           <input
             type="text"
             placeholder="🔍 Search across all columns"
